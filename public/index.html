@@ -1,0 +1,148 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ram Browser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #333;
+            margin-top: 30px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+
+        .suggestion {
+            font-style: italic;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: #ff0000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Ram Browser</h1>
+        <form id="searchForm">
+            <input type="text" id="userQuery" name="user_query" placeholder="Search or type a URL">
+            <button type="submit">Search</button>
+        </form>
+        <h2 id="searchResultsTitle" style="display: none;">Search Results:</h2>
+        <ul id="searchResults"></ul>
+        <p id="errorMessage" class="error" style="display: none;"></p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        $('#searchForm').submit(async function (event) {
+            event.preventDefault();
+            const userQuery = $('#userQuery').val();
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `user_query=${encodeURIComponent(userQuery)}`
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch search results');
+                }
+                const { searchResults } = await response.json();
+                displaySearchResults(searchResults);
+            } catch (error) {
+                $('#searchResults').empty();
+                $('#searchResultsTitle').hide();
+                $('#errorMessage').text('Failed to fetch search results').show();
+            }
+        });
+
+        function displaySearchResults(searchResults) {
+            const $searchResults = $('#searchResults');
+            $searchResults.empty();
+            $('#searchResultsTitle').show();
+            $('#errorMessage').hide();
+            searchResults.forEach(result => {
+                $searchResults.append(`<li><a href="${result.link}" target="_blank">${result.title}</a></li>`);
+            });
+        }
+
+    </script>
+</body>
+
+</html>
